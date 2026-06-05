@@ -1,0 +1,553 @@
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Casino Royale | Вход + Регистрация + Демо-оплата</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0a2a1a, #020a05);
+            font-family: 'Segoe UI', 'Poppins', 'Montserrat', system-ui, sans-serif;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* ДВЕ КОЛОНКИ: игровой стол + лидеры */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .game-col {
+            flex: 2;
+            min-width: 280px;
+        }
+        .leaders-col {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .casino-table {
+            background: #0b4b2e;
+            background-image: radial-gradient(circle at 25% 40%, rgba(0,0,0,0.2) 2%, transparent 2.5%);
+            background-size: 28px 28px;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.6), inset 0 1px 4px rgba(255,215,0,0.3);
+            border: 1px solid #d4af37;
+        }
+
+        .leaders-card {
+            background: #000000aa;
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1rem;
+            border: 1px solid gold;
+            height: fit-content;
+        }
+
+        .leaders-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .leaders-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ffd96655;
+            color: #ffefcf;
+            font-weight: bold;
+        }
+        .top1 { background: #ffd70033; border-radius: 1rem; margin-bottom: 0.2rem; }
+        .balance-amount { font-size: 2rem; font-weight: bold; color: #f5e56b; }
+        .btn-buy, .btn-upgrade {
+            background: radial-gradient(#f3b33d, #c97e1a);
+            border: none;
+            font-weight: bold;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+        }
+        .clicker-upgrade-panel {
+            background: #0c161cd4;
+            border-radius: 1.5rem;
+            padding: 0.6rem;
+            margin-top: 0.8rem;
+            text-align: center;
+        }
+        .shop-item, .upgrade-item {
+            background: #00000099;
+            margin: 0.7rem 0;
+            padding: 0.7rem;
+            border-radius: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.96);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: radial-gradient(circle at 30% 20%, #1a3a2a, #0a1a0a);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 2px solid gold;
+            max-width: 450px;
+            width: 90%;
+        }
+        .payment-input {
+            width: 100%;
+            padding: 0.6rem;
+            margin: 0.5rem 0;
+            border-radius: 2rem;
+            border: none;
+            text-align: center;
+            font-size: 1rem;
+        }
+        .close-modal, .payment-btn {
+            background: #e4a022;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            margin-top: 0.8rem;
+            cursor: pointer;
+        }
+        .color-option { flex:1; text-align:center; padding:0.7rem; border-radius:2rem; cursor:pointer; font-weight:bold; }
+        .color-red { background:#b52b1a; }
+        .color-black { background:#1e1e2a; }
+        .selected { border: 3px solid gold; box-shadow: 0 0 12px gold; }
+        .play-btn { background: radial-gradient(#f3b33d, #c97e1a); font-size:1.2rem; font-weight:bold; padding:0.7rem; width:100%; border-radius:3rem; border:none; cursor:pointer; }
+        .ball-animation { font-size: 2rem; min-height: 70px; background:#00000055; border-radius: 2rem; padding:0.5rem; }
+        
+        /* Стили для кода (чёрный на белом) */
+        .code-block {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .code-label {
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        .code-value-black {
+            font-size: 2rem;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: black;
+            background: #f0f0f0;
+            display: inline-block;
+            padding: 0.2rem 1.5rem;
+            border-radius: 0.8rem;
+            letter-spacing: 4px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .tab-btn {
+            flex: 1;
+            background: #2a2f1f;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            background: #e4a022;
+            color: black;
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        
+        @media (max-width: 800px) {
+            .dashboard { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- БЛОК АВТОРИЗАЦИИ (вход/регистрация) -->
+    <div id="authContainer">
+        <div class="casino-table" style="max-width: 450px; margin: 0 auto;">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="login">🔐 ВХОД</button>
+                <button class="tab-btn" data-tab="register">📝 РЕГИСТРАЦИЯ</button>
+            </div>
+            
+            <!-- ФОРМА ВХОДА -->
+            <div id="loginForm" class="auth-form active">
+                <input type="text" id="loginUsername" placeholder="Логин" style="width:100%; margin:8px 0; padding:10px; border-radius:30px;">
+                <input type="password" id="loginPassword" placeholder="Пароль" style="width:100%; margin:8px 0; padding:10px; border-radius:30px;">
+                <button class="play-btn" id="doLoginBtn">ВОЙТИ</button>
+                <div id="loginMessage" style="margin-top:10px; text-align:center;"></div>
+            </div>
+            
+            <!-- ФОРМА РЕГИСТРАЦИИ -->
+            <div id="registerForm" class="auth-form">
+                <div class="code-block">
+                    <div class="code-label">🎫 ВАШ ИНДИВИДУАЛЬНЫЙ КОД</div>
+                    <div class="code-value-black" id="registrationCode">------</div>
+                    <div style="font-size:0.7rem; color:#666; margin-top:5px;">⏱️ Действителен 5 минут</div>
+                </div>
+                <input type="text" id="regLogin" placeholder="Логин (мин 3 символа)" style="width:100%; margin:8px 0; padding:10px; border-radius:30px;">
+                <input type="password" id="regPassword" placeholder="Пароль (мин 4 символа)" style="width:100%; margin:8px 0; padding:10px; border-radius:30px;">
+                <input type="text" id="regCodeInput" placeholder="Введите код из поля выше" style="width:100%; margin:8px 0; padding:10px; border-radius:30px;">
+                <button class="play-btn" id="doRegisterBtn">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+                <div id="registerMessage" style="margin-top:10px; text-align:center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИГРОВАЯ ЗОНА -->
+    <div id="gameArea" style="display:none;">
+        <div class="dashboard">
+            <div class="game-col">
+                <div class="casino-table">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span id="gameUserName" style="color:#ffd966;">👤</span>
+                        <button id="gameLogoutBtn" style="background:#5a2e2e; border:none; padding:0.3rem 1rem; border-radius:2rem; cursor:pointer;">Выйти</button>
+                    </div>
+                    <div style="text-align:center; margin:10px 0;">
+                        <div>🎰 БАЛАНС ТОКЕНОВ</div>
+                        <div class="balance-amount" id="balanceDisplay">0</div>
+                        <button id="openShopBtn" class="btn-buy" style="margin-top:5px;">💰 КУПИТЬ ТОКЕНЫ</button>
+                    </div>
+                    <div class="bet-section">
+                        <input type="number" id="betAmount" class="bet-input" value="50" step="10" style="width:100%; padding:8px; border-radius:2rem;">
+                        <div class="quick-btns" style="display:flex; gap:0.5rem; margin-top:5px;">
+                            <button id="halfBet" class="quick-btn">1/2</button>
+                            <button id="doubleBet" class="quick-btn">x2</button>
+                            <button id="maxBet" class="quick-btn">MAX</button>
+                        </div>
+                    </div>
+                    <div class="color-picker" style="display:flex; gap:1rem; margin:1rem 0;">
+                        <div class="color-option color-red" data-color="red">🔴 КРАСНЫЙ</div>
+                        <div class="color-option color-black" data-color="black">⚫ ЧЁРНЫЙ</div>
+                    </div>
+                    <div class="roulette-sphere" style="background:#0b141ce6; border-radius:2rem; padding:0.8rem; text-align:center;">
+                        <div class="ball-animation" id="ballAnimation">🎲</div>
+                        <div id="rouletteResultText" style="font-size:0.9rem;">✨ СДЕЛАЙ СТАВКУ ✨</div>
+                    </div>
+                    <button class="play-btn" id="playGameBtn">🎲 ЗАПУСТИТЬ ШАРИК 🎲</button>
+                    
+                    <!-- КЛИКЕР + УЛУЧШЕНИЯ -->
+                    <div class="clicker-upgrade-panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>💎 КЛИКЕР: +<span id="clickerPower">1</span> токен/клик</span>
+                            <button id="openClickerModalBtn" class="btn-upgrade">🔘 ОТКРЫТЬ КЛИКЕР</button>
+                        </div>
+                        <div class="upgrade-item" style="margin-top:8px;">
+                            <span>⬆️ Улучшить кликер (стоимость: <span id="upgradeCost">50</span> токенов)</span>
+                            <button id="upgradeClickerBtn" class="btn-upgrade">УЛУЧШИТЬ</button>
+                        </div>
+                    </div>
+                    <div class="faucet-trigger" style="background:#2a2f1f; border-radius:1.5rem; padding:0.5rem; margin-top:0.8rem; text-align:center; cursor:pointer;" id="openClickerModalBtn2">
+                        💸 БЕСПЛАТНЫЕ ТОКЕНЫ (КЛИКЕР) 💸
+                    </div>
+                </div>
+            </div>
+            <div class="leaders-col">
+                <div class="leaders-card">
+                    <h3 style="color:gold;">🏆 ЛИДЕРЫ 🏆</h3>
+                    <div style="font-size:0.7rem; color:#ccc;">Обновление каждые 5 минут</div>
+                    <ul class="leaders-list" id="leadersList">
+                        <li>Загрузка...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ПОКУПКИ (ДЕМО-ОПЛАТА, ВСЕГДА ПРОХОДИТ) -->
+<div id="shopModal" class="modal">
+    <div class="modal-content" id="paymentStep1">
+        <h3 style="color:gold;">💳 ПОКУПКА ТОКЕНОВ (ДЕМО)</h3>
+        <div class="shop-item" style="justify-content:center; gap:10px;">
+            <span>🎫 1000 ток = 100₽</span>
+            <span>🎫 5000 ток = 449₽</span>
+            <span>🎫 10000 ток = 899₽</span>
+        </div>
+        <input type="text" id="cardNumber" class="payment-input" placeholder="Номер карты (16 цифр)" maxlength="16">
+        <input type="text" id="cardExpiry" class="payment-input" placeholder="Срок (MM/YY)" maxlength="5">
+        <input type="text" id="cardCvv" class="payment-input" placeholder="CVV (3 цифры)" maxlength="3">
+        <select id="tokenPackage" class="payment-input">
+            <option value="1000">1000 токенов — 100₽</option>
+            <option value="5000">5000 токенов — 449₽</option>
+            <option value="10000">10000 токенов — 899₽</option>
+        </select>
+        <button id="processPaymentBtn" class="payment-btn">💳 ОПЛАТИТЬ</button>
+        <button class="close-modal" id="closeShopBtn">Закрыть</button>
+        <div style="font-size:0.7rem; margin-top:10px; color:#aaa;">⭐ Демо-режим: оплата всегда успешна</div>
+    </div>
+</div>
+
+<!-- МОДАЛКА КЛИКЕРА -->
+<div id="clickerModalWin" class="modal">
+    <div class="modal-content" style="text-align:center;">
+        <h2 style="color:#ffcc44;">🎁 КЛИКЕР-МАШИНА</h2>
+        <div id="clickerCircle" style="width:180px; height:180px; background:radial-gradient(#ffcc44,#ff9900); border-radius:50%; margin:1rem auto; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold; cursor:pointer;">🔘</div>
+        <div>Кликай! +<span id="clickerPowerModal">1</span> токен за клик</div>
+        <div>💰 Заработано за сессию: <span id="clickerCount">0</span></div>
+        <button class="close-modal" id="closeClickerModal">Закрыть</button>
+    </div>
+</div>
+
+<script>
+    // ========== АУДИО ==========
+    let audioCtx = null;
+    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playSpinSound() { if(audioCtx){ let now=audioCtx.currentTime; let osc=audioCtx.createOscillator(); let gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value=700; gain.gain.value=0.2; osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001,now+0.4); osc.stop(now+0.4); } }
+    function playWinSound() { if(audioCtx){ let osc=audioCtx.createOscillator(); let gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value=880; gain.gain.value=0.25; osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.5); osc.stop(audioCtx.currentTime+0.5); } }
+    function playLoseSound() { if(audioCtx){ let osc=audioCtx.createOscillator(); let gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value=300; gain.gain.value=0.2; osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.5); osc.stop(audioCtx.currentTime+0.5); } }
+
+    // ========== ДАННЫЕ ПОЛЬЗОВАТЕЛЕЙ ==========
+    let currentUser = null;
+    let balance = 0;
+    let clickerLevel = 1;
+    let spinning = false;
+    let currentRegistrationCode = null, codeExpiryTimer = null;
+
+    function generateCode() { return Math.floor(100000+Math.random()*900000).toString(); }
+    function refreshCode() { if(codeExpiryTimer) clearTimeout(codeExpiryTimer); currentRegistrationCode=generateCode(); document.getElementById("registrationCode") && (document.getElementById("registrationCode").innerText=currentRegistrationCode); codeExpiryTimer=setTimeout(()=>{ if(!currentUser) refreshCode(); },300000); }
+    function loadUsers() { return JSON.parse(localStorage.getItem("casino_users_all") || "{}"); }
+    function saveUsers(u) { localStorage.setItem("casino_users_all", JSON.stringify(u)); }
+    function saveBalance() { if(currentUser){ let u=loadUsers(); if(u[currentUser]){ u[currentUser].balance=Math.floor(balance); u[currentUser].clickerLevel=clickerLevel; saveUsers(u); } } }
+    function updateUI() { document.getElementById("balanceDisplay") && (document.getElementById("balanceDisplay").innerText=Math.floor(balance)); document.getElementById("clickerPower") && (document.getElementById("clickerPower").innerText=clickerLevel); document.getElementById("clickerPowerModal") && (document.getElementById("clickerPowerModal").innerText=clickerLevel); let cost=clickerLevel*50; document.getElementById("upgradeCost") && (document.getElementById("upgradeCost").innerText=cost); }
+    function addTokens(amount) { balance+=amount; updateUI(); saveBalance(); }
+    function subtractTokens(amount) { if(balance<amount) return false; balance-=amount; updateUI(); saveBalance(); return true; }
+
+    // ВХОД
+    function loginUser(login, password){
+        let users=loadUsers();
+        if(!users[login]) return {ok:false, msg:"Пользователь не найден"};
+        if(users[login].password !== btoa(password)) return {ok:false, msg:"Неверный пароль"};
+        currentUser=login;
+        balance=users[login].balance;
+        clickerLevel=users[login].clickerLevel||1;
+        localStorage.setItem("casino_session",login);
+        return {ok:true, msg:"Добро пожаловать!"};
+    }
+    
+    // РЕГИСТРАЦИЯ
+    function registerUser(login,password,code){
+        if(login?.trim().length<3) return {ok:false,msg:"Логин минимум 3 символа"};
+        if(password?.length<4) return {ok:false,msg:"Пароль минимум 4 символа"};
+        if(code!==currentRegistrationCode) return {ok:false,msg:"Неверный код регистрации"};
+        let users=loadUsers();
+        if(users[login]) return {ok:false,msg:"Логин уже занят"};
+        users[login]={password:btoa(password), balance:1000, clickerLevel:1};
+        saveUsers(users);
+        currentUser=login; balance=1000; clickerLevel=1;
+        localStorage.setItem("casino_session",login);
+        return {ok:true,msg:"Регистрация успешна!"};
+    }
+    
+    function logout(){ currentUser=null; localStorage.removeItem("casino_session"); document.getElementById("authContainer").style.display="block"; document.getElementById("gameArea").style.display="none"; refreshCode(); }
+    
+    function showGame(){
+        document.getElementById("authContainer").style.display="none";
+        document.getElementById("gameArea").style.display="block";
+        let users=loadUsers();
+        if(users[currentUser]){ balance=users[currentUser].balance; clickerLevel=users[currentUser].clickerLevel||1; }
+        updateUI(); document.getElementById("gameUserName").innerHTML=`👤 ${currentUser}`;
+        updateLeadersBoard(); setInterval(updateLeadersBoard, 300000);
+    }
+
+    // ========== ЛИДЕРЫ ==========
+    function updateLeadersBoard(){
+        let users=loadUsers();
+        let arr=Object.entries(users).map(([name,data])=>({name, balance:data.balance||0}));
+        arr.sort((a,b)=>b.balance-a.balance);
+        let listDiv=document.getElementById("leadersList");
+        if(!listDiv) return;
+        listDiv.innerHTML=arr.slice(0,10).map((u,idx)=>`<li class="${idx===0?'top1':''}"><span>${idx+1}. ${u.name}</span><span>💰 ${Math.floor(u.balance)}</span></li>`).join("");
+        if(arr.length===0) listDiv.innerHTML="<li>Нет игроков</li>";
+    }
+
+    // ========== ИГРОВАЯ ЛОГИКА ==========
+    let selectedColor="red";
+    function validateBet(){ let inp=document.getElementById("betAmount"); let v=parseInt(inp.value); if(isNaN(v)||v<1) v=1; if(balance && v>balance) v=balance; inp.value=v; return v; }
+    function animateGame(cb){
+        let frames=0; let ballDiv=document.getElementById("ballAnimation"); playSpinSound();
+        let interval=setInterval(()=>{ ballDiv.innerHTML=`🌀 ${["🎰","🎲","🔴","⚫"][Math.floor(Math.random()*4)]} 🌀`; frames++; if(frames>=12){ clearInterval(interval); cb(); } },90);
+    }
+    function playGame(){
+        if(!currentUser) return; if(spinning) return;
+        let bet=validateBet(); if(bet<=0||bet>balance) return;
+        spinning=true; let btn=document.getElementById("playGameBtn"); btn.disabled=true; btn.innerText="🌀 ВРАЩЕНИЕ...";
+        subtractTokens(bet);
+        let playerChoice=selectedColor;
+        animateGame(()=>{
+            let result=Math.random()<0.5?"red":"black"; let win=(playerChoice===result);
+            let resultDiv=document.getElementById("rouletteResultText");
+            let ballDiv=document.getElementById("ballAnimation");
+            if(win){ let winAmt=bet*2; addTokens(winAmt); resultDiv.innerHTML=`<span style="color:gold;">🏆 ВЫИГРЫШ +${winAmt} (${result==='red'?'🔴':'⚫'})</span>`; ballDiv.innerHTML=`🏆 ВЫИГРЫШ 🏆`; playWinSound(); }
+            else{ resultDiv.innerHTML=`<span style="color:#ffaa77;">💔 ПРОИГРЫШ! -${bet} (${result==='red'?'🔴':'⚫'})</span>`; ballDiv.innerHTML=`❌ ПРОИГРЫШ ❌`; playLoseSound(); }
+            spinning=false; btn.disabled=false; btn.innerText="🎲 ЗАПУСТИТЬ ШАРИК 🎲"; saveBalance();
+        });
+    }
+
+    // ========== УЛУЧШЕНИЕ КЛИКЕРА ==========
+    function upgradeClicker(){
+        let cost=clickerLevel*50;
+        if(balance>=cost){
+            subtractTokens(cost);
+            clickerLevel++;
+            updateUI();
+            saveBalance();
+            alert(`✅ Кликер улучшен! Теперь +${clickerLevel} токенов за клик.`);
+        } else alert(`❌ Не хватает ${cost} токенов.`);
+    }
+
+    // ========== МАГАЗИН (ДЕМО-ОПЛАТА ВСЕГДА ПРОХОДИТ) ==========
+    function openShop(){ document.getElementById("shopModal").style.display="flex"; }
+    function processPayment(){
+        let card=document.getElementById("cardNumber").value.replace(/\s/g,'');
+        let expiry=document.getElementById("cardExpiry").value;
+        let cvv=document.getElementById("cardCvv").value;
+        let pkg=parseInt(document.getElementById("tokenPackage").value);
+        
+        if(card.length!==16 || !/^\d+$/.test(card)){ alert("❌ Ошибка: номер карты должен содержать 16 цифр"); return; }
+        if(!/^\d{2}\/\d{2}$/.test(expiry)){ alert("❌ Ошибка: срок в формате MM/YY"); return; }
+        if(cvv.length!==3 || !/^\d+$/.test(cvv)){ alert("❌ Ошибка: CVV должен содержать 3 цифры"); return; }
+        
+        // Демо-оплата всегда успешна
+        let price = pkg===1000 ? 100 : (pkg===5000 ? 449 : 899);
+        alert(`✅ ОПЛАТА ПРОШЛА УСПЕШНО!\nС карты ${card.slice(0,4)}****${card.slice(-4)} списано ${price}₽\nНа ваш счёт зачислено ${pkg} токенов!`);
+        
+        addTokens(pkg);
+        document.getElementById("shopModal").style.display="none";
+        
+        // Очистка полей
+        document.getElementById("cardNumber").value="";
+        document.getElementById("cardExpiry").value="";
+        document.getElementById("cardCvv").value="";
+    }
+    function closeShopModal(){ document.getElementById("shopModal").style.display="none"; }
+
+    // ========== КЛИКЕР-ОКНО ==========
+    let clickSession=0;
+    function openClickerWindow(){
+        clickSession=0;
+        document.getElementById("clickerCount").innerText="0";
+        document.getElementById("clickerModalWin").style.display="flex";
+    }
+    function closeClickerModal(){ document.getElementById("clickerModalWin").style.display="none"; }
+    function initClicker(){
+        let circle=document.getElementById("clickerCircle");
+        circle?.addEventListener("click",()=>{
+            if(!currentUser){ alert("Сначала войдите в аккаунт"); return; }
+            let gain=clickerLevel;
+            addTokens(gain);
+            clickSession+=gain;
+            document.getElementById("clickerCount").innerText=clickSession;
+            circle.style.transform="scale(0.95)"; setTimeout(()=>circle.style.transform="",100);
+        });
+        document.getElementById("closeClickerModal")?.addEventListener("click",closeClickerModal);
+        document.getElementById("openClickerModalBtn")?.addEventListener("click",openClickerWindow);
+        document.getElementById("openClickerModalBtn2")?.addEventListener("click",openClickerWindow);
+    }
+    
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    function initGameEvents(){
+        document.querySelector('.color-red')?.addEventListener('click',()=>{ selectedColor='red'; document.querySelector('.color-red')?.classList.add('selected'); document.querySelector('.color-black')?.classList.remove('selected'); });
+        document.querySelector('.color-black')?.addEventListener('click',()=>{ selectedColor='black'; document.querySelector('.color-black')?.classList.add('selected'); document.querySelector('.color-red')?.classList.remove('selected'); });
+        document.getElementById("playGameBtn")?.addEventListener("click",playGame);
+        document.getElementById("halfBet")?.addEventListener("click",()=>{ let cur=validateBet(); document.getElementById("betAmount").value=Math.max(1,Math.floor(cur/2)); validateBet(); });
+        document.getElementById("doubleBet")?.addEventListener("click",()=>{ let cur=validateBet(); let dbl=cur*2; if(balance && dbl>balance) dbl=balance; document.getElementById("betAmount").value=dbl; validateBet(); });
+        document.getElementById("maxBet")?.addEventListener("click",()=>{ if(balance) document.getElementById("betAmount").value=balance; validateBet(); });
+        document.getElementById("gameLogoutBtn")?.addEventListener("click",()=>{ logout(); location.reload(); });
+        document.getElementById("openShopBtn")?.addEventListener("click",openShop);
+        document.getElementById("processPaymentBtn")?.addEventListener("click",processPayment);
+        document.getElementById("closeShopBtn")?.addEventListener("click",closeShopModal);
+        document.getElementById("upgradeClickerBtn")?.addEventListener("click",upgradeClicker);
+    }
+    
+    function initAuth(){
+        // Переключение табов
+        document.querySelectorAll('.tab-btn').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+                document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('loginForm').classList.remove('active');
+                document.getElementById('registerForm').classList.remove('active');
+                if(btn.getAttribute('data-tab')==='login') document.getElementById('loginForm').classList.add('active');
+                else document.getElementById('registerForm').classList.add('active');
+            });
+        });
+        
+        // Вход
+        document.getElementById("doLoginBtn")?.addEventListener("click",()=>{
+            let login=document.getElementById("loginUsername").value.trim();
+            let pwd=document.getElementById("loginPassword").value;
+            let res=loginUser(login,pwd);
+            let msgDiv=document.getElementById("loginMessage");
+            msgDiv.innerText=res.msg;
+            msgDiv.style.color=res.ok?"#aaffaa":"#ffaaaa";
+            if(res.ok){
+                setTimeout(()=>{ showGame(); initGameEvents(); initClicker(); },300);
+            }
+        });
+        
+        // Регистрация
+        document.getElementById("doRegisterBtn")?.addEventListener("click",()=>{
+            let login=document.getElementById("regLogin").value.trim();
+            let pwd=document.getElementById("regPassword").value;
+            let code=document.getElementById("regCodeInput").value.trim();
+            let res=registerUser(login,pwd,code);
+            let msgDiv=document.getElementById("registerMessage");
+            msgDiv.innerText=res.msg;
+            msgDiv.style.color=res.ok?"#aaffaa":"#ffaaaa";
+            if(res.ok){
+                setTimeout(()=>{ showGame(); initGameEvents(); initClicker(); },300);
+            }
+        });
+    }
+    
+    function checkSession(){
+        let sess=localStorage.getItem("casino_session");
+        if(sess && loadUsers()[sess]){ currentUser=sess; let u=loadUsers()[sess]; balance=u.balance; clickerLevel=u.clickerLevel||1; showGame(); initGameEvents(); initClicker(); return true; }
+        return false;
+    }
+    
+    refreshCode();
+    initAuth();
+    if(!checkSession()){ document.getElementById("authContainer").style.display="block"; document.getElementById("gameArea").style.display="none"; }
+    document.body.addEventListener("click", function firstClick(){ initAudio(); document.body.removeEventListener("click", firstClick); });
+</script>
+</body>
+</html>
